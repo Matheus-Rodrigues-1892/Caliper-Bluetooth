@@ -18,9 +18,16 @@ def parse_measurement(data: bytes) -> str:
     if len(data) < 7:
         return f"(dados incompletos: {list(data)})"
     
-    raw_value = int.from_bytes(data[5:7], byteorder='big', signed=False)
+    print(f"Dados brutos recebidos: {list(data)}")
     
-    measurement_mm = raw_value / 100.0
+    raw_value = int.from_bytes(data[5:7], byteorder='big', signed=False)
+    measurement_mm = 0.0
+
+    if data[7] == 1:
+        measurement_mm = raw_value / 100.0 * (-1)
+    else:
+        measurement_mm = raw_value / 100.0
+    
     
     return f"{measurement_mm:.2f} mm"
 
@@ -43,8 +50,6 @@ async def main():
     
     if device is None:
         print("Caliper não encontrado!")
-        print("   - Verifique se o caliper está ligado")
-        print("   - Tente aproximar o caliper do computador")
         return
     
     print(f"Caliper encontrado: {device.name} ({device.address})")
@@ -61,8 +66,7 @@ async def main():
         print("Conectado!")
         print()
         print("=" * 50)
-        print("  Aperte o botão DATA no caliper para enviar")
-        print("  medições. Pressione Ctrl+C para sair.")
+        print(" Pressione o botão para enviar novas medições")
         print("=" * 50)
         print()
         
