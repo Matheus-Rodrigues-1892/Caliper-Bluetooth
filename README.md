@@ -4,9 +4,8 @@ Este projeto permite a leitura de medições de um paquímetro digital Shahe via
 
 ## Requisitos
 
-- Python 3.7 ou superior
 - Módulo `bleak` para comunicação Bluetooth Low Energy
-- Paquímetro digital Shahe com Bluetooth (ou outro dispositivo BLE compatível)
+- 5114L Built-in Wireless Depth caliper
 
 ## 🔧 Instalação
 
