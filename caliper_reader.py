@@ -13,16 +13,13 @@ CHAR_UUID = "0000ff00-0000-1000-8000-00805f9b34fb"
 def parse_measurement(data: bytes) -> str:
     """
     Interpreta os bytes recebidos do caliper Shahe.
-    Formato descoberto: bytes[5:7] em Big Endian, dividido por 100 = mm
-    Exemplo: [2, 0, 255, 0, 0, 1, 45, 0] → bytes[5:7] = [1, 45] → 301 → 3.01mm
+    Formato : bytes[5:7] em Big Endian, dividido por 100 = mm
     """
     if len(data) < 7:
         return f"(dados incompletos: {list(data)})"
     
-    # Bytes 5 e 6 contêm a medição em Big Endian (centésimos de mm)
     raw_value = int.from_bytes(data[5:7], byteorder='big', signed=False)
     
-    # Converte para mm
     measurement_mm = raw_value / 100.0
     
     return f"{measurement_mm:.2f} mm"
@@ -35,7 +32,7 @@ async def main():
     print()
     
     # Procura o dispositivo
-    print(f"🔍 Procurando caliper '{DEVICE_NAME}'...")
+    print(f"Procurando caliper '{DEVICE_NAME}'...")
     
     device = await BleakScanner.find_device_by_name(DEVICE_NAME, timeout=10.0)
     
@@ -45,23 +42,23 @@ async def main():
         device = await BleakScanner.find_device_by_address(DEVICE_ADDRESS, timeout=10.0)
     
     if device is None:
-        print("❌ Caliper não encontrado!")
+        print("Caliper não encontrado!")
         print("   - Verifique se o caliper está ligado")
         print("   - Tente aproximar o caliper do computador")
         return
     
-    print(f"✅ Caliper encontrado: {device.name} ({device.address})")
+    print(f"Caliper encontrado: {device.name} ({device.address})")
     print()
     
     # Conecta ao dispositivo
-    print("📡 Conectando...")
+    print("Conectando...")
     
     async with BleakClient(device, timeout=20.0) as client:
         if not client.is_connected:
-            print("❌ Falha na conexão!")
+            print("Falha na conexão!")
             return
         
-        print("✅ Conectado!")
+        print("Conectado!")
         print()
         print("=" * 50)
         print("  Aperte o botão DATA no caliper para enviar")
@@ -72,7 +69,7 @@ async def main():
         # Callback para receber notificações
         def notification_handler(sender, data: bytearray):
             measurement = parse_measurement(bytes(data))
-            print(f"📏 Medição: {measurement}")
+            print(f"Medição: {measurement}")
         
         # Ativa notificações na característica
         await client.start_notify(CHAR_UUID, notification_handler)
@@ -86,11 +83,11 @@ async def main():
         finally:
             # Desativa notificações antes de sair
             await client.stop_notify(CHAR_UUID)
-            print("\n👋 Desconectado!")
+            print("\nDesconectado!")
 
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n\n🛑 Programa encerrado pelo usuário.")
+        print("\n\n Finalizado")
